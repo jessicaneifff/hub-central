@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub Central - Acesso</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', 'Helvetica', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .transition-all-fast {
+            transition: all 0.2s ease-in-out;
+        }
+        .transition-opacity-300 {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .btn-shine {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-shine::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 75%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transition: left 0.6s ease;
+        }
+        .btn-shine:hover::before {
+            left: 150%;
+        }
+        .btn-shine.processing::before {
+            left: 150%;
+            animation: shine-processing 2s infinite linear;
+        }
+        @keyframes shine-processing {
+            0% { left: -100%; }
+            100% { left: 150%; }
+        }
+        .skeleton-box {
+            background-color: #e5e7eb;
+            border-radius: 0.5rem;
+            animation: skeleton-shimmer 1.5s infinite linear;
+            background-image: linear-gradient(90deg, #e5e7eb 0px, #f3f4f6 40px, #e5e7eb 80px);
+            background-size: 600px;
+        }
+        .dark .skeleton-box {
+            background-color: #374151;
+            background-image: linear-gradient(90deg, #374151 0px, #4b5563 40px, #374151 80px);
+        }
+        @keyframes skeleton-shimmer {
+            0% { background-position: -300px; }
+            100% { background-position: 300px; }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-slate-gray': '#34495E',
+                        'brand-dark-blue': '#1C3F53',
+                        'brand-deep-blue': '#0D3B4C', 
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- =================================================================== -->
+    <!-- SCRIPT DE VERIFICAÇÃO INSTANTÂNEA PARA EVITAR "PISCAR" -->
+    <!-- =================================================================== -->
+    <script>
+        // Este script executa ANTES de a página ser desenhada.
+        // Se o token existir, o redirecionamento é instantâneo, eliminando o "piscar".
+        const authToken = localStorage.getItem('authToken');
+        if (authToken) {
+            window.location.replace('dashboard.html');
+        }
+    </script>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+
+    <!-- PRÉ-CARREGADOR DE PÁGINA (SKELETON) -->
+    <div id="page-preloader" class="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-gray-900 transition-opacity-300">
+        <div class="w-full max-w-sm space-y-8 p-4">
+            <div class="h-10 w-2/3 mx-auto skeleton-box"></div>
+            <div class="h-6 w-1/2 mx-auto skeleton-box"></div>
+            <div class="space-y-6 pt-8">
+                <div class="h-14 w-full skeleton-box"></div>
+                <div class="h-14 w-full skeleton-box"></div>
+                <div class="h-6 w-1/4 ml-auto skeleton-box"></div>
+                <div class="h-12 w-full skeleton-box"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo principal agora inicia invisível e só aparece se o usuário não estiver logado -->
+    <div id="main-content" class="min-h-screen lg:grid lg:grid-cols-2 opacity-0 transition-opacity-300 duration-500">
+        <div class="hidden lg:flex flex-col justify-between p-20 bg-brand-deep-blue">
+            <div class="text-left">
+                <img class="h-8 w-auto" src="logo.png" alt="Laissez Faire Consulting Logo" onerror="this.onerror=null;this.src='https://placehold.co/100x32/FFFFFF/0D3B4C?text=Logo';">
+                <h1 class="mt-8 text-4xl font-extrabold text-white">Hub Central Insigne</h1>
+                <p class="mt-2 text-base font-light leading-6 text-gray-300">Sua plataforma para gestão integrada de aplicações, dados e ferramentas.</p>
+            </div>
+            <div class="text-left">
+                <p id="motivational-message" class="text-lg font-medium text-gray-200"></p>
+                <p class="mt-2 text-sm text-gray-400">- Equipe Insigne</p>
+            </div>
+        </div>
+
+        <div class="relative flex items-center justify-center min-h-screen px-4 py-12 sm:px-6 lg:px-8">
+            <button id="dark-mode-toggle" class="absolute top-6 right-6 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all-fast">
+                <svg id="sun-icon" class="h-6 w-6 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.106a.75.75 0 010 1.06l-1.591 1.592a.75.75 0 01-1.06-1.061l1.59-1.591a.75.75 0 011.06 0zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM17.836 17.836a.75.75 0 01-1.06 0l-1.59-1.591a.75.75 0 111.06-1.06l1.591 1.59a.75.75 0 010 1.061zM12 21.75a.75.75 0 01-.75-.75v-2.25a.75.75 0 011.5 0v2.25a.75.75 0 01-.75-.75zM5.106 18.894a.75.75 0 010-1.06l1.591-1.592a.75.75 0 011.06 1.061l-1.59 1.591a.75.75 0 01-1.06 0zM3 12a.75.75 0 01.75-.75h2.25a.75.75 0 010 1.5H3.75A.75.75 0 013 12zM6.106 5.106a.75.75 0 011.06 0l1.59 1.591a.75.75 0 01-1.06 1.06l-1.59-1.59a.75.75 0 010-1.061z" /></svg>
+                <svg id="moon-icon" class="h-6 w-6 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" /></svg>
+            </button>
+
+            <div class="w-full max-w-sm space-y-8">
+                <div id="notification-banner" class="hidden p-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
+                    <span class="font-medium">Aviso:</span> <span id="notification-message"></span>
+                </div>
+
+                <div>
+                    <h2 class="text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Acesso ao Portal</h2>
+                    <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">Entre com suas credenciais para continuar</p>
+                </div>
+                
+                <div id="error-message" class="hidden p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert"></div>
+
+                <form id="login-form" class="space-y-6">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">E-mail</label>
+                        <div class="mt-1 relative">
+                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>
+                            </div>
+                            <input id="email" name="email" type="email" autocomplete="email" required autofocus placeholder="Seu e-mail" class="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 pl-10 pr-3 py-2.5 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-dark-blue/50 sm:text-sm">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Senha</label>
+                        <div class="mt-1 flex items-center space-x-2">
+                            <div class="relative w-full">
+                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+                                </div>
+                                <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Senha" class="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 pl-10 pr-3 py-2.5 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-dark-blue/50 sm:text-sm">
+                            </div>
+                            <button type="button" id="toggle-password" class="flex-shrink-0 p-2.5 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-dark-blue/50">
+                                <svg id="eye-open" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+                                <svg id="eye-closed" class="h-5 w-5 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.774 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.243 4.243-4.243-4.243" /></svg>
+                            </button>
+                        </div>
+                        <p id="caps-lock-warning" class="hidden text-red-500 text-xs mt-2">Aviso: Caps Lock está ativado.</p>
+                    </div>
+
+                    <div class="text-right">
+                        <a href="#senha" class="text-sm font-medium text-brand-dark-blue hover:text-brand-slate-gray dark:text-gray-300 dark:hover:text-white">Esqueceu sua senha?</a>
+                    </div>
+
+                    <div>
+                        <button type="submit" id="login-button" class="btn-shine flex w-full justify-center rounded-md border border-transparent bg-brand-dark-blue py-3.5 px-4 text-sm font-medium text-white shadow-sm hover:bg-brand-slate-gray focus:outline-none focus:ring-2 focus:ring-brand-dark-blue focus:ring-offset-2 dark:focus:ring-offset-gray-900">
+                            <span id="login-button-text">Entrar</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const preloader = document.getElementById('page-preloader');
+        const mainContent = document.getElementById('main-content');
+        
+        if (preloader) {
+            preloader.classList.add('opacity-0');
+            setTimeout(() => { preloader.style.display = 'none'; }, 300);
+        }
+        if (mainContent) {
+            mainContent.classList.remove('opacity-0');
+        }
+
+        // --- SELETORES E LÓGICA DA PÁGINA DE LOGIN ---
+        const loginForm = document.getElementById('login-form');
+        const errorMessageDiv = document.getElementById('error-message');
+        const notificationBanner = document.getElementById('notification-banner');
+        const notificationMessage = document.getElementById('notification-message');
+        const motivationalMessage = document.getElementById('motivational-message');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const togglePassword = document.getElementById('toggle-password');
+        const eyeOpen = document.getElementById('eye-open');
+        const eyeClosed = document.getElementById('eye-closed');
+        const capsLockWarning = document.getElementById('caps-lock-warning');
+        const loginButton = document.getElementById('login-button');
+        const loginButtonText = document.getElementById('login-button-text');
+
+        const messages = [
+            "“A centralização é o caminho para a eficiência. A eficiência é o caminho para o sucesso.”",
+            "“Todos os seus dados, uma única visão. O poder da clareza ao seu alcance.”",
+            "“Simplifique. Organize. Conquiste. Bem-vindo ao controle total.”",
+            "“O futuro da sua gestão começa com um único login.”"
+        ];
+
+        const applyDarkMode = (isDark) => {
+            document.documentElement.classList.toggle('dark', isDark);
+            if (sunIcon) sunIcon.style.display = isDark ? 'none' : 'block';
+            if (moonIcon) moonIcon.style.display = isDark ? 'block' : 'none';
+        };
+
+        (async function initLoginPage() {
+            try {
+                // CORREÇÃO: Busca a configuração usando uma URL relativa.
+                const response = await fetch('/api/config');
+                if (response.ok) {
+                    const config = await response.json();
+                    if (config.showNotification && notificationBanner) {
+                        notificationMessage.textContent = config.notificationMessage;
+                        notificationBanner.classList.remove('hidden');
+                    }
+                }
+            } catch (error) {
+                console.warn('Aviso: Não foi possível buscar as configurações do servidor.', error);
+            }
+
+            if (motivationalMessage) {
+                motivationalMessage.textContent = messages[Math.floor(Math.random() * messages.length)];
+            }
+
+            const darkModeSaved = localStorage.getItem('darkMode');
+            applyDarkMode(darkModeSaved === 'enabled' || (darkModeSaved === null && window.matchMedia('(prefers-color-scheme: dark)').matches));
+        })();
+        
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            errorMessageDiv.classList.add('hidden');
+            
+            loginButton.disabled = true;
+            loginButton.classList.add('processing');
+            loginButtonText.textContent = 'Processando...';
+
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            try {
+                // CORREÇÃO: Usa uma URL relativa para o login, removendo a dependência da API_BASE_URL.
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userInfo', JSON.stringify(data.user));
+                    window.location.replace('dashboard.html');
+                } else {
+                    errorMessageDiv.textContent = data.message || 'Ocorreu um erro.';
+                    errorMessageDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Erro ao tentar fazer login:', error);
+                errorMessageDiv.textContent = 'Não foi possível conectar ao servidor.';
+                errorMessageDiv.classList.remove('hidden');
+            } finally {
+                loginButton.disabled = false;
+                loginButton.classList.remove('processing');
+                loginButtonText.textContent = 'Entrar';
+            }
+        });
+
+        passwordInput.addEventListener('keyup', (event) => {
+            if (capsLockWarning) {
+                capsLockWarning.classList.toggle('hidden', !event.getModifierState("CapsLock"));
+            }
+        });
+
+        darkModeToggle.addEventListener('click', () => {
+            const isDark = !document.documentElement.classList.contains('dark');
+            localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+            applyDarkMode(isDark);
+        });
+
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            eyeOpen.classList.toggle('hidden');
+            eyeClosed.classList.toggle('hidden');
+        });
+    });
+</script>
+</body>
+</html>

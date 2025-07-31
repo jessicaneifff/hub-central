@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laissez Faire - Acesso Centralizado</title>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Estilo base com a fonte Inter e Helvetica como fallback */
+        body {
+            font-family: 'Inter', 'Helvetica', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Transições suaves para modo escuro/claro */
+        .transition-all-fast {
+            transition: all 0.2s ease-in-out;
+        }
+        /* Esconde a barra de rolagem do iframe */
+        iframe::-webkit-scrollbar { display: none; }
+        iframe { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Estilos do Skeleton Preloader */
+        .skeleton-box {
+            background-color: #e5e7eb; /* gray-200 */
+            border-radius: 0.5rem; /* rounded-lg */
+            animation: skeleton-shimmer 1.5s infinite linear;
+            background-image: linear-gradient(90deg, #e5e7eb 0px, #f3f4f6 40px, #e5e7eb 80px);
+            background-size: 600px;
+        }
+        .dark .skeleton-box {
+            background-color: #374151; /* dark:gray-700 */
+            background-image: linear-gradient(90deg, #374151 0px, #4b5563 40px, #374151 80px);
+        }
+        @keyframes skeleton-shimmer {
+            0% { background-position: -300px; }
+            100% { background-position: 300px; }
+        }
+    </style>
+ <!-- Pixel Code - https://amplify.insigne.solutions/ -->
+<script src="https://amplify.insigne.solutions/pixel/tqYCJ0HQeKGg0y5m"></script>
+    <script>
+        // Roda o script assim que o conteúdo da página carregar
+        document.addEventListener('DOMContentLoaded', async () => {
+            
+            // =======================================================
+            // CAMADA DE SEGURANÇA E BUSCA DE DADOS
+            // =======================================================
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                // Se não há token, o usuário não está logado. Redireciona imediatamente.
+                // Usamos um alert customizado ou simples para notificar o usuário
+                alert('Acesso negado. Por favor, faça o login.');
+                window.location.href = 'login.html';
+                return; // Para a execução do script
+            }
+
+            try {
+                // Tenta buscar os dados do dashboard no servidor, enviando o token para autorização
+                const response = await fetch('http://localhost:3000/api/dashboard', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const user = data.user;
+                    
+                    // Se deu tudo certo, preenche a página com os dados recebidos
+                    const welcomeHeader = document.getElementById('welcome-header');
+                    // Atualiza o cabeçalho de boas-vindas com o nome do usuário
+                    welcomeHeader.innerHTML = `Bem-vindo, ${user.name} <span id="welcome-emoji"></span>`;
+                    
+                    // Exibe o dashboard que estava oculto
+                    document.getElementById('dashboard-screen').style.display = 'flex';
+
+                    // Agora que o usuário está autenticado, inicializa o resto da UI
+                    initializeDashboardUI();
+
+                } else {
+                    // Se o token for inválido/expirado, o servidor retornará um erro (401 ou 403)
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userInfo'); // Limpa qualquer dado antigo
+                    alert('Sua sessão expirou. Por favor, faça login novamente.');
+                    window.location.href = 'login.html';
+                }
+
+            } catch (error) {
+                console.error('Erro ao buscar dados do dashboard:', error);
+                alert('Não foi possível conectar ao servidor. Verifique sua conexão ou tente novamente mais tarde.');
+                // Opcional: redirecionar para o login em caso de erro de rede
+                // window.location.href = 'login.html';
+            }
+        });
+
+        // ===============================================================
+        // FUNÇÃO PARA INICIALIZAR A INTERFACE DO DASHBOARD
+        // Esta função contém toda a sua lógica de UI original
+        // ===============================================================
+        function initializeDashboardUI() {
+            // SELETORES DE ELEMENTOS
+            const dashboardScreen = document.getElementById('dashboard-screen');
+            // ... (todos os seus outros seletores)
+            const logoutButtonMain = document.getElementById('logout-button-main');
+            const logoutButtonSidebar = document.getElementById('logout-button-sidebar');
+
+            // DADOS DOS APLICATIVOS (Idealmente, isso também viria do servidor)
+            const apps = [
+                // ... seu array de apps ...
+            ];
+            
+            // FUNÇÕES DE LÓGICA
+            // ... (todas as suas funções: showPreloader, populateAppGrids, etc)
+
+            const doLogout = () => {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userInfo');
+                window.location.href = 'login.html';
+            };
+
+            // INICIALIZAÇÃO E EVENT LISTENERS
+            const init = () => {
+                // ... (toda a sua lógica de inicialização)
+                
+                // Adiciona o listener para os dois botões de logout
+                logoutButtonMain.addEventListener('click', doLogout);
+                logoutButtonSidebar.addEventListener('click', doLogout);
+                
+                // Resto do seu código init...
+            };
+
+            // Chama a função de inicialização
+            init();
+        }
+    </script>
+
+</body>
+</html>
+
+<!-- END Pixel Code -->
+    <script>
+        // Configuração do Tailwind para modo escuro e nova cor
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-slate-gray': '#34495E',
+                        'brand-dark-blue': '#1C3F53',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-all-fast">
+
+    <!-- =================================================================== -->
+    <!-- TELA DO DASHBOARD -->
+    <!-- =================================================================== -->
+    <div id="dashboard-screen" class="flex-col min-h-screen hidden"> <!-- Inicia oculto -->
+        <header class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-20">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="flex h-12 items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <img class="h-8 w-auto" src="logo.png" alt="Laissez Faire Consulting Logo" onerror="this.onerror=null;this.src='https://placehold.co/100x32/1C3F53/FFFFFF?text=Logo';">
+                        </div>
+                        <span class="ml-3 font-bold text-lg text-gray-800 dark:text-white">Laissez Faire</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                         <a href="https://laissezfaire.consulting" target="_blank" class="flex items-center space-x-2 text-sm font-normal text-gray-600 dark:text-gray-300 hover:text-brand-dark-blue dark:hover:text-brand-cyan transition-all-fast p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700" title="Visualizar site">
+                            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                            <span>Visualizar site</span>
+                        </a>
+                        <div class="flex items-center space-x-1 relative">
+                            <button id="fullscreen-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all-fast" title="Alternar tela cheia">
+                                <svg id="expand-icon" class="h-6 w-6 text-gray-500 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M20.25 3.75v4.5m0-4.5h-4.5m4.5 0L15 9m-6 12v-4.5m0 4.5h4.5m-4.5 0L9 15m11.25 6v-4.5m0 4.5h-4.5m4.5 0L15 15" />
+                                </svg>
+                                <svg id="compress-icon" class="hidden h-6 w-6 text-gray-500 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5v-6h6M4.5 19.5l7.5-7.5M19.5 4.5v6h-6M19.5 4.5l-7.5 7.5" />
+                                </svg>
+                            </button>
+                            <div class="relative">
+                                <button id="settings-button" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all-fast" title="Configurações">
+                                    <svg class="h-6 w-6 text-gray-500 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.242 1.434l-1.005.827c-.293.24-.438.613-.438.995s.145.755.438.995l1.005.827a1.125 1.125 0 0 1 .242 1.434l-1.296 2.247a1.125 1.125 0 0 1-1.37.49l-1.217-.456c-.355-.133-.75-.072-1.075.124a6.57 6.57 0 0 1-.22.128c-.332.183-.582.495-.645.87l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.063-.374-.313-.686-.645-.87a6.52 6.52 0 0 1-.22-.127c-.324-.196-.72-.257-1.075-.124l-1.217.456a1.125 1.125 0 0 1-1.37-.49l-1.296-2.247a1.125 1.125 0 0 1 .242-1.434l1.005-.827c.293-.24.438.613.438.995s-.145-.755-.438-.995l-1.005-.827a1.125 1.125 0 0 1-.242-1.434l1.296-2.247a1.125 1.125 0 0 1 1.37-.49l1.217.456c.355.133.75.072 1.075-.124.073-.044.146-.087.22-.128.332-.183.582-.495.645-.87l.213-1.281Z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                    </svg>
+                                </button>
+                                <div id="settings-dropdown" class="hidden absolute right-0 mt-2 w-56 origin-top-right bg-white dark:bg-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                    <div class="py-1">
+                                        <!-- Dropdown items -->
+                                        <a href="#" id="logout-button-main" class="flex items-center px-4 py-2 text-sm text-red-700 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-600">
+                                            <svg class="h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" /></svg>
+                                            <span>Sair / Logout</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <button id="dark-mode-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all-fast">
+                                <svg id="sun-icon" class="h-6 w-6 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.106a.75.75 0 010 1.06l-1.591 1.592a.75.75 0 01-1.06-1.061l1.59-1.591a.75.75 0 011.06 0zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM17.836 17.836a.75.75 0 01-1.06 0l-1.59-1.591a.75.75 0 111.06-1.06l1.591 1.59a.75.75 0 010 1.061zM12 21.75a.75.75 0 01-.75-.75v-2.25a.75.75 0 011.5 0v2.25a.75.75 0 01-.75.75zM5.106 18.894a.75.75 0 010-1.06l1.591-1.592a.75.75 0 011.06 1.061l-1.59 1.591a.75.75 0 01-1.06 0zM3 12a.75.75 0 01.75-.75h2.25a.75.75 0 010 1.5H3.75A.75.75 0 013 12zM6.106 5.106a.75.75 0 011.06 0l1.59 1.591a.75.75 0 01-1.06 1.06l-1.59-1.59a.75.75 0 010-1.061z" /></svg>
+                                <svg id="moon-icon" class="h-6 w-6 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-grow mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-4">
+            <div class="text-center mb-6">
+                <!-- CONTEÚDO DINÂMICO -->
+                <h1 id="welcome-header" class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Carregando...</h1>
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">Ajuste preferências do seu site, visualize dados em tempo real, ative campanhas e conecte CRMs e redes com facilidade.</p>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">Você está usando a versão 2.7.1 deste app. Seu banco de dados está sincronizado com as últimas alterações.</p>
+            </div>
+            
+            <h2 class="text-lg font-bold mb-3 text-gray-800 dark:text-gray-200">Aplicações Insigne</h2>
+            <div id="insigne-app-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"></div>
+
+            <h2 class="text-lg font-bold mt-4 mb-3 text-gray-800 dark:text-gray-200">Ferramentas Externas</h2>
+            <div id="external-app-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
+        </main>
+        
+        <footer class="w-full">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 border-t border-gray-200 dark:border-gray-700">
+                <div class="grid grid-cols-1 sm:grid-cols-3 items-center text-sm text-gray-500 dark:text-gray-400 space-y-2 sm:space-y-0">
+                    <p class="text-center sm:text-left">Powered by <span class="font-bold text-gray-700 dark:text-gray-300">Insigne Company</span></p>
+                    <div class="flex justify-center space-x-4">
+                        <a href="#" class="hover:text-brand-dark-blue">MediaKit</a>
+                        <a href="http://audit.insigne.solutions/audit/lfc" target="_blank" class="hover:text-brand-dark-blue">Auditoria</a>
+                        <a href="#" class="hover:text-brand-dark-blue">Contrato</a>
+                        <a href="https://status.insigne.company" target="_blank" class="hover:text-brand-dark-blue">Status</a>
+                    </div>
+                    <p id="footer-year" class="text-center sm:text-right"></p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- O restante do seu HTML (app-view-screen, preloader, modal) permanece o mesmo -->
+    <div id="app-view-screen" class="hidden h-screen w-screen flex fixed top-0 left-0">
+        <!-- ... seu código do app-view-screen ... -->
+        <aside class="w-16 bg-gray-800 dark:bg-black/80 backdrop-blur-sm flex flex-col items-center justify-between py-5 shadow-2xl">
+            <!-- ... -->
+            <button id="logout-button-sidebar" class="text-gray-300 hover:text-white transition-all-fast" title="Sair">
+                <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" /></svg>
+            </button>
+        </aside>
+    </div>
+    <!-- ... resto do seu HTML ... -->
+
+
+    <script>
+        // Roda o script assim que o conteúdo da página carregar
+        document.addEventListener('DOMContentLoaded', async () => {
+            
+            // =======================================================
+            // CAMADA DE SEGURANÇA E BUSCA DE DADOS
+            // =======================================================
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                // Se não há token, o usuário não está logado. Redireciona imediatamente.
+                // Usamos um alert customizado ou simples para notificar o usuário
+                alert('Acesso negado. Por favor, faça o login.');
+                window.location.href = 'login.html';
+                return; // Para a execução do script
+            }
+
+            try {
+                // Tenta buscar os dados do dashboard no servidor, enviando o token para autorização
+                const response = await fetch('http://localhost:3000/api/dashboard', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const user = data.user;
+                    
+                    // Se deu tudo certo, preenche a página com os dados recebidos
+                    const welcomeHeader = document.getElementById('welcome-header');
+                    // Atualiza o cabeçalho de boas-vindas com o nome do usuário
+                    welcomeHeader.innerHTML = `Bem-vindo, ${user.name} <span id="welcome-emoji"></span>`;
+                    
+                    // Exibe o dashboard que estava oculto
+                    document.getElementById('dashboard-screen').style.display = 'flex';
+
+                    // Agora que o usuário está autenticado, inicializa o resto da UI
+                    initializeDashboardUI();
+
+                } else {
+                    // Se o token for inválido/expirado, o servidor retornará um erro (401 ou 403)
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userInfo'); // Limpa qualquer dado antigo
+                    alert('Sua sessão expirou. Por favor, faça login novamente.');
+                    window.location.href = 'login.html';
+                }
+
+            } catch (error) {
+                console.error('Erro ao buscar dados do dashboard:', error);
+                alert('Não foi possível conectar ao servidor. Verifique sua conexão ou tente novamente mais tarde.');
+                // Opcional: redirecionar para o login em caso de erro de rede
+                // window.location.href = 'login.html';
+            }
+        });
+
+        // ===============================================================
+        // FUNÇÃO PARA INICIALIZAR A INTERFACE DO DASHBOARD
+        // Esta função contém toda a sua lógica de UI original
+        // ===============================================================
+        function initializeDashboardUI() {
+            // SELETORES DE ELEMENTOS
+            const dashboardScreen = document.getElementById('dashboard-screen');
+            // ... (todos os seus outros seletores)
+            const logoutButtonMain = document.getElementById('logout-button-main');
+            const logoutButtonSidebar = document.getElementById('logout-button-sidebar');
+
+            // DADOS DOS APLICATIVOS (Idealmente, isso também viria do servidor)
+            const apps = [
+                // ... seu array de apps ...
+            ];
+            
+            // FUNÇÕES DE LÓGICA
+            // ... (todas as suas funções: showPreloader, populateAppGrids, etc)
+
+            const doLogout = () => {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userInfo');
+                window.location.href = 'login.html';
+            };
+
+            // INICIALIZAÇÃO E EVENT LISTENERS
+            const init = () => {
+                // ... (toda a sua lógica de inicialização)
+                
+                // Adiciona o listener para os dois botões de logout
+                logoutButtonMain.addEventListener('click', doLogout);
+                logoutButtonSidebar.addEventListener('click', doLogout);
+                
+                // Resto do seu código init...
+            };
+
+            // Chama a função de inicialização
+            init();
+        }
+    </script>
+
+</body>
+</html>
